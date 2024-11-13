@@ -7,13 +7,13 @@ export default defineConfig({
     include: ["src/**/*.spec.ts"],
 
     coverage: {
-      enabled: false,
+      enabled: true,
+      all: true,
       reporter: ["json", "text", "html"],
       cleanOnRerun: true,
-      extension: ["*.ts"],
-      reportsDirectory: "../coverage",
+      reportsDirectory: "./coverage",
 
-      include: ["src/**/*.ts"], // Include all source files for coverage
+      include: ["src/**/!(*.spec).ts"],
     },
   },
 });
