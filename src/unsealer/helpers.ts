@@ -4,7 +4,7 @@ import { verifyEnvelopeWithEC, decryptCEKWithECDH } from "./ec.js";
 import { verifyEnvelopeWithRSA, decryptCEKWithRSA } from "./rsa.js";
 
 export async function verifyEnvelope(
-  data: { cek: Record<string, string>; payload: string },
+  data: { kid: string; cek: Record<string, string>; payload: string },
   signature: string,
   senderPublicKey: CryptoKey
 ): Promise<boolean> {
@@ -20,7 +20,6 @@ export async function verifyEnvelope(
   }
   throw new Error("Unsupported key type");
 }
-
 export async function decryptCEK(
   encryptedCEK: string,
   recipientKey: CryptoKey
@@ -50,6 +49,7 @@ export async function decryptCEK(
   }
   throw new Error("Unsupported key type");
 }
+
 export async function decryptPayload(
   encryptedPayload: string,
   cek: CryptoKey

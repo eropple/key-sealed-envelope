@@ -3,7 +3,7 @@ import canonicalize from "canonicalize";
 import { encryptCEKWithECDH, signEnvelopeWithEC } from "./ec.js";
 import { encryptCEKWithRSA, signEnvelopeWithRSA } from "./rsa.js";
 
-async function generateCEK(): Promise<CryptoKey> {
+export async function generateCEK(): Promise<CryptoKey> {
   return await crypto.subtle.generateKey(
     {
       name: "AES-GCM",
@@ -14,7 +14,7 @@ async function generateCEK(): Promise<CryptoKey> {
   );
 }
 
-async function encryptPayload(
+export async function encryptPayload(
   plaintext: string | Uint8Array,
   cek: CryptoKey
 ): Promise<Uint8Array> {
@@ -40,7 +40,7 @@ async function encryptPayload(
   return result;
 }
 
-async function encryptCEK(
+export async function encryptCEK(
   cek: CryptoKey,
   recipientKey: CryptoKey
 ): Promise<Uint8Array> {
@@ -80,8 +80,9 @@ async function encryptCEK(
   }
   throw new Error("Unsupported key type");
 }
-async function signEnvelope(
-  data: { cek: Record<string, string>; payload: string },
+
+export async function signEnvelope(
+  data: { kid: string; cek: Record<string, string>; payload: string },
   senderKey: CryptoKey
 ): Promise<string> {
   const canonicalString = canonicalize(data);
@@ -98,5 +99,3 @@ async function signEnvelope(
 
   return Buffer.from(signature).toString("base64");
 }
-
-export { generateCEK, encryptPayload, encryptCEK, signEnvelope };

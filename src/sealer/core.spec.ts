@@ -220,3 +220,81 @@ describe("Mixed key types", () => {
     ).rejects.toThrow("Mixed key types not supported");
   });
 });
+
+describe("CTX commitment", () => {
+  it("generates valid CTX tag", async () => {
+    const senderKeyPair = await crypto.subtle.generateKey(
+      {
+        name: "RSA-PSS",
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256",
+      },
+      true,
+      ["sign", "verify"]
+    );
+
+    const recipientKeyPair = await crypto.subtle.generateKey(
+      {
+        name: "RSA-OAEP",
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256",
+      },
+      true,
+      ["encrypt", "decrypt"]
+    );
+
+    const envelope = await sealCore(
+      "test message",
+      senderKeyPair.privateKey,
+      "sender1",
+      { recipient1: recipientKeyPair.publicKey }
+    );
+
+    expect(envelope.ctx).toBeDefined();
+    expect(typeof envelope.ctx).toBe("string");
+    // CTX tag should be base64-encoded SHA-256 output (32 bytes -> 44 base64 chars)
+    expect(envelope.ctx.length).toBe(44);
+  });
+
+  it("generates different CTX tags for different messages", async () => {
+    const senderKeyPair = await crypto.subtle.generateKey(
+      {
+        name: "RSA-PSS",
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256",
+      },
+      true,
+      ["sign", "verify"]
+    );
+
+    const recipientKeyPair = await crypto.subtle.generateKey(
+      {
+        name: "RSA-OAEP",
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256",
+      },
+      true,
+      ["encrypt", "decrypt"]
+    );
+
+    const envelope1 = await sealCore(
+      "message one",
+      senderKeyPair.privateKey,
+      "sender1",
+      { recipient1: recipientKeyPair.publicKey }
+    );
+
+    const envelope2 = await sealCore(
+      "message two",
+      senderKeyPair.privateKey,
+      "sender1",
+      { recipient1: recipientKeyPair.publicKey }
+    );
+
+    expect(envelope1.ctx).not.toBe(envelope2.ctx);
+  });
+});

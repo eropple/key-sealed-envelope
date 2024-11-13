@@ -1,13 +1,16 @@
 /**
- * Represents a sealed envelope containing encrypted data and associated metadata.
- * @property {string} kid - Key ID identifying the sender's public key for signature verification
- * @property {Record<string, string>} cek - Content encryption keys for each recipient
- * @property {string} payload - The encrypted message payload
- * @property {string} signature - Digital signature of the envelope contents
+ * A sealed envelope containing encrypted data for multiple recipients.
+ *
+ * @property kid - Key ID of the sender's public key for signature verification
+ * @property cek - Map of encrypted content keys per recipient
+ * @property payload - Encrypted message data with IV prepended
+ * @property signature - Digital signature over the envelope contents
+ * @property ctx - Commitment tag ensuring all recipients decrypt to same message
  */
 export type KeySealedEnvelope = {
   kid: string;
   cek: Record<string, string>;
   payload: string;
   signature: string;
+  ctx: string;
 };

@@ -1,4 +1,6 @@
+import { CTX_CONSTANT_STRING } from "../constants.js";
 import { type KeySealedEnvelope } from "../types/envelope.js";
+import { areBuffersEqual } from "../utils.js";
 
 import { decryptCEK, decryptPayload, verifyEnvelope } from "./helpers.js";
 
@@ -8,14 +10,15 @@ import { decryptCEK, decryptPayload, verifyEnvelope } from "./helpers.js";
  * The unsealing process:
  * 1. Verify envelope signature using sender's public key
  * 2. Decrypt recipient's CEK portion
- * 3. Use decrypted CEK to decrypt payload
+ * 3. Verify CTX commitment tag
+ * 4. Use decrypted CEK to decrypt payload
  *
  * @param envelope - The sealed envelope to decrypt
  * @param recipientKey - Private key for decryption
  * @param recipientKid - Key ID of the decryption key
  * @param senderKeys - Map of sender key IDs to their public keys
  * @returns Decrypted payload as Uint8Array
- * @throws If sender unknown or signature invalid
+ * @throws If sender unknown, signature invalid, or CTX verification fails
  */
 export async function unsealCore(
   envelope: KeySealedEnvelope,
@@ -23,30 +26,66 @@ export async function unsealCore(
   recipientKid: string,
   senderKeys: Record<string, CryptoKey>
 ): Promise<Uint8Array> {
-  const senderPublicKey = senderKeys[envelope.kid];
-  if (!senderPublicKey) {
+  const senderKey = senderKeys[envelope.kid];
+  if (!senderKey) {
     throw new Error("Unknown sender key");
   }
 
-  const envelopeData = {
-    cek: envelope.cek,
-    payload: envelope.payload,
-  };
-
-  const isValid = await verifyEnvelope(
-    envelopeData,
+  // Verify signature first
+  const signatureValid = await verifyEnvelope(
+    {
+      kid: envelope.kid,
+      cek: envelope.cek,
+      payload: envelope.payload,
+    },
     envelope.signature,
-    senderPublicKey
+    senderKey
   );
-  if (!isValid) {
+
+  if (!signatureValid) {
     throw new Error("Invalid envelope signature");
   }
 
-  const encryptedCEK = envelope.cek[recipientKid];
-  if (!encryptedCEK) {
-    throw new Error("No CEK found for recipient");
+  // Decrypt the CEK
+  const cek = await decryptCEK(envelope.cek[recipientKid], recipientKey);
+
+  // Extract IV and encrypted data
+  const encrypted = Buffer.from(envelope.payload, "base64");
+  const iv = encrypted.subarray(0, 12);
+  const gcmTag = encrypted.subarray(-16);
+
+  // Build CTX input with domain separator
+  const separator = new TextEncoder().encode(CTX_CONSTANT_STRING);
+  const ctxInput = new Uint8Array(
+    separator.length + iv.length + (encrypted.length - 28) + gcmTag.length
+  );
+
+  let offset = 0;
+  ctxInput.set(separator, offset);
+  offset += separator.length;
+  ctxInput.set(iv, offset);
+  offset += iv.length;
+  ctxInput.set(encrypted.subarray(12, -16), offset);
+  offset += encrypted.length - 28;
+  ctxInput.set(gcmTag, offset);
+
+  const computedCtx = await crypto.subtle.digest("SHA-256", ctxInput);
+
+  // Verify CTX tag
+  const expectedCtx = Buffer.from(envelope.ctx, "base64");
+  if (!areBuffersEqual(computedCtx, expectedCtx)) {
+    throw new Error("Invalid CTX tag");
   }
 
-  const cek = await decryptCEK(encryptedCEK, recipientKey);
-  return await decryptPayload(envelope.payload, cek);
+  // Decrypt payload
+  const decrypted = await crypto.subtle.decrypt(
+    {
+      name: "AES-GCM",
+      iv,
+    },
+    cek,
+    encrypted.subarray(12)
+  );
+
+  return new Uint8Array(decrypted);
 }

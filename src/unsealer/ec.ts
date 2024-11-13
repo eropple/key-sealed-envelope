@@ -33,8 +33,8 @@ export async function decryptCEKWithECDH(
     ["unwrapKey"]
   );
 
-  const iv = encryptedCEK.slice(0, 12);
-  const wrappedKey = encryptedCEK.slice(12);
+  const iv = encryptedCEK.subarray(0, 12);
+  const wrappedKey = encryptedCEK.subarray(12);
 
   return await crypto.subtle.unwrapKey(
     "raw",
