@@ -1,0 +1,30 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+      "rootDir": "./src",
+      "outDir": "./dist",
+      "target": "ES2017",
+      "lib": [
+        "ESNext",
+        "DOM"
+      ],
+      "moduleResolution": "node",
+      "paths": {
+        "@/*": ["./src/*"],
+      },
+      "module": "esnext",
+    },
+    "include": [
+      "./src/*.ts",
+      "./src/**/*.ts"
+    ],
+    "typedocOptions": {
+      "entryPoints": [
+        "src/plugin.ts",
+        "src/options.ts",
+        "src/operation-helpers.ts",
+      ],
+      "entryPointStrategy": "expand",
+      "out": "docs"
+    }
+  }

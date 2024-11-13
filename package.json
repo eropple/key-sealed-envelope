@@ -1,0 +1,46 @@
+{
+  "name": "@eropple/key-sealed-envelope",
+  "version": "0.1.0",
+  "author": "Ed Ropple",
+  "license": "MIT",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "*",
+    "src/**/*",
+    "test/**/*",
+    "dist/**/*",
+    "examples/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "yarn run -s build --watch",
+    "test": "vitest run",
+    "lint": "eslint",
+    "demo": "node --loader ts-node/esm ./examples/start-server.ts",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "canonicalize": "^2.0.0",
+    "utility-types": "^3.11.0"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^1.1.1",
+    "@types/node": "^20.1.2",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "@typescript-eslint/parser": "^8.8.1",
+    "@vitest/coverage-v8": "^2.1.2",
+    "eslint": "^9.12.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.10.0",
+    "husky": "^9.1.5",
+    "lint-staged": "^15.2.9",
+    "ts-node": "^10.9.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.5.2",
+    "vitest": "^2.1.2"
+  }
+}
