@@ -24,5 +24,5 @@ npm install @eropple/key-sealed-envelope
 
 In lieu of trying to explain things:
 
-- [Quickstart example][./examples/quickstart.ts]
-- [Example with EC and multiple recipients][./examples/multiple-recipients.ts]
+- [Quickstart example](./examples/quickstart.ts)
+- [Example with EC and multiple recipients](./examples/multiple-recipients.ts)
