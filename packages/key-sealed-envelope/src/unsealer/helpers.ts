@@ -1,5 +1,7 @@
 import canonicalize from "canonicalize";
 
+import { base64ToUint8Array } from "../utils.js";
+
 import { verifyEnvelopeWithEC, decryptCEKWithECDH } from "./ec.js";
 import { verifyEnvelopeWithRSA, decryptCEKWithRSA } from "./rsa.js";
 
@@ -10,7 +12,7 @@ export async function verifyEnvelope(
 ): Promise<boolean> {
   const canonicalString = canonicalize(data);
   const message = new TextEncoder().encode(canonicalString);
-  const signatureBytes = Buffer.from(signature, "base64");
+  const signatureBytes = base64ToUint8Array(signature);
 
   if (senderPublicKey.algorithm.name === "RSA-PSS") {
     return verifyEnvelopeWithRSA(message, signatureBytes, senderPublicKey);
@@ -24,7 +26,7 @@ export async function decryptCEK(
   encryptedCEK: string,
   recipientKey: CryptoKey
 ): Promise<CryptoKey> {
-  const encryptedBytes = Buffer.from(encryptedCEK, "base64");
+  const encryptedBytes = base64ToUint8Array(encryptedCEK);
 
   if (recipientKey.algorithm.name === "RSA-OAEP") {
     return decryptCEKWithRSA(encryptedBytes, recipientKey);
@@ -54,7 +56,7 @@ export async function decryptPayload(
   encryptedPayload: string,
   cek: CryptoKey
 ): Promise<Uint8Array> {
-  const encryptedBytes = Buffer.from(encryptedPayload, "base64");
+  const encryptedBytes = base64ToUint8Array(encryptedPayload);
   const iv = encryptedBytes.subarray(0, 12);
   const ciphertext = encryptedBytes.subarray(12);
 

@@ -2,9 +2,9 @@ import {
   type ECPrivateNamedJWK,
   type ECPublicNamedJWK,
   type ECPublicNamedJWKS,
-  ECSealer,
-  ECUnsealer,
-} from "../src/index.ts";
+} from "../src/index.js";
+import { ECSealer as ECSealerJS } from "../src/sealer/index.js";
+import { ECUnsealer as ECUnsealerJS } from "../src/unsealer/index.js";
 
 async function multipleRecipients() {
   // Generate signing keys for senders (ECDSA)
@@ -123,14 +123,14 @@ async function multipleRecipients() {
   };
 
   // Alice sends to Carol and Dave
-  const aliceSealer = await ECSealer.create(alicePrivateJWK, recipientJWKS);
+  const aliceSealer = await ECSealerJS.create(alicePrivateJWK, recipientJWKS);
   const aliceMessage = await aliceSealer.seal("Secret message from Alice", [
     "carol-1",
     "dave-1",
   ]);
 
   // Bob sends to Alice and Dave
-  const bobSealer = await ECSealer.create(bobPrivateJWK, recipientJWKS);
+  const bobSealer = await ECSealerJS.create(bobPrivateJWK, recipientJWKS);
   const bobMessage = await bobSealer.seal("Secret message from Bob", [
     "alice-1",
     "dave-1",
@@ -146,7 +146,7 @@ async function multipleRecipients() {
     kty: "EC",
     crv: "P-256",
   };
-  const carolUnsealer = await ECUnsealer.create(carolPrivateJWK, senderJWKS);
+  const carolUnsealer = await ECUnsealerJS.create(carolPrivateJWK, senderJWKS);
   console.log(
     "I'm Carol now",
     aliceMessage,
@@ -163,7 +163,7 @@ async function multipleRecipients() {
     kty: "EC",
     crv: "P-256",
   };
-  const daveUnsealer = await ECUnsealer.create(davePrivateJWK, senderJWKS);
+  const daveUnsealer = await ECUnsealerJS.create(davePrivateJWK, senderJWKS);
   console.log(
     "I'm Dave now",
     bobMessage,

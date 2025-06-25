@@ -4,7 +4,7 @@ import {
   type RSAPublicNamedJWKS,
   RSASealer,
   RSAUnsealer,
-} from "../src/index.ts";
+} from "../src/index.js";
 
 async function quickstart() {
   // First, we need some keys. In production you'd load these from secure storage.

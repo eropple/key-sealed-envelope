@@ -1,8 +1,8 @@
 import { CTX_CONSTANT_STRING } from "../constants.js";
 import { type KeySealedEnvelope } from "../types/envelope.js";
-import { areBuffersEqual } from "../utils.js";
+import { areUint8ArraysEqual, base64ToUint8Array } from "../utils.js";
 
-import { decryptCEK, decryptPayload, verifyEnvelope } from "./helpers.js";
+import { decryptCEK, verifyEnvelope } from "./helpers.js";
 
 /**
  * Low-level envelope unsealing function. Verifies signature and decrypts payload.
@@ -50,7 +50,7 @@ export async function unsealCore(
   const cek = await decryptCEK(envelope.cek[recipientKid], recipientKey);
 
   // Extract IV and encrypted data
-  const encrypted = Buffer.from(envelope.payload, "base64");
+  const encrypted = base64ToUint8Array(envelope.payload);
   const iv = encrypted.subarray(0, 12);
   const gcmTag = encrypted.subarray(-16);
 
@@ -72,8 +72,8 @@ export async function unsealCore(
   const computedCtx = await crypto.subtle.digest("SHA-256", ctxInput);
 
   // Verify CTX tag
-  const expectedCtx = Buffer.from(envelope.ctx, "base64");
-  if (!areBuffersEqual(computedCtx, expectedCtx)) {
+  const expectedCtx = base64ToUint8Array(envelope.ctx);
+  if (!areUint8ArraysEqual(new Uint8Array(computedCtx), expectedCtx)) {
     throw new Error("Invalid CTX tag");
   }
 

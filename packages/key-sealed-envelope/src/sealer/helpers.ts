@@ -97,5 +97,5 @@ export async function signEnvelope(
     throw new Error("Unsupported key type");
   }
 
-  return Buffer.from(signature).toString("base64");
+  return btoa(String.fromCharCode(...signature));
 }

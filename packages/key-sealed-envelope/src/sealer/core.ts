@@ -52,14 +52,14 @@ export async function sealCore(
   const encryptedCEKs: Record<string, string> = {};
   for (const [kid, recipientKey] of Object.entries(recipientKeys)) {
     const encryptedCEK = await encryptCEK(cek, recipientKey);
-    encryptedCEKs[kid] = Buffer.from(encryptedCEK).toString("base64");
+    encryptedCEKs[kid] = btoa(String.fromCharCode(...encryptedCEK));
   }
 
   // Sign the envelope before adding CTX
   const envelope = {
     kid: senderKid,
     cek: encryptedCEKs,
-    payload: Buffer.from(encryptedPayload).toString("base64"),
+    payload: btoa(String.fromCharCode(...encryptedPayload)),
   };
 
   const signature = await signEnvelope(envelope, senderKey);
@@ -90,6 +90,6 @@ export async function sealCore(
   return {
     ...envelope,
     signature,
-    ctx: Buffer.from(ctxTag).toString("base64"),
+    ctx: btoa(String.fromCharCode(...new Uint8Array(ctxTag))),
   };
 }
