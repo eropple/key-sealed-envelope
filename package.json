@@ -18,7 +18,6 @@
     "watch": "yarn run -s build --watch",
     "test": "vitest run",
     "lint": "eslint",
-    "demo": "node --loader ts-node/esm ./examples/start-server.ts",
     "prepare": "husky"
   },
   "dependencies": {

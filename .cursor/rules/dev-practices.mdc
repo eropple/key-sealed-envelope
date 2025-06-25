@@ -1,0 +1,44 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Development Practices
+
+This document outlines the key development practices, tools, and workflows used in this project.
+
+We use `pnpm` for all Node-side tasks.
+
+## Continuous Integration
+
+The project uses GitHub Actions for Continuous Integration (CI). The workflow is defined in [`.github/workflows/ci.yaml`](mdc:.github/workflows/ci.yaml).
+
+The CI pipeline is triggered on every `push` and `pull_request` to any branch. It runs the following steps across Node.js versions 20 and 22:
+1.  Installs dependencies using `pnpm`.
+2.  Builds the project with `pnpm build`.
+3.  Runs the test suite with `pnpm test`.
+4.  Lints the codebase with `pnpm lint`.
+
+A separate workflow for publishing to NPM exists at [`.github/workflows/publish.yaml`](mdc:.github/workflows/publish.yaml), but it is not currently active.
+
+## Testing
+
+The project uses [Vitest](mdc:https:/vitest.dev) for testing. The configuration is in [`vitest.config.ts`](mdc:vitest.config.ts).
+
+-   Test files are located alongside the source code and have a `.spec.ts` extension.
+-   Test coverage is enabled and reports are generated for all non-test files in the `src` directory.
+
+## Linting and Formatting
+
+Code style is enforced using [ESLint](mdc:https:/eslint.org) and [Prettier](mdc:https:/prettier.io).
+
+-   The ESLint configuration is in [`eslint.config.mjs`](mdc:eslint.config.mjs). It extends the recommended TypeScript rules and includes a plugin for import ordering.
+-   The Prettier configuration is in [`prettier.config.cjs`](mdc:prettier.config.cjs).
+
+## Git Hooks
+
+The project uses [Husky](mdc:https:/typicode.github.io/husky) to manage git hooks.
+
+-   A `pre-commit` hook, defined in [`.husky/pre-commit`](mdc:.husky/pre-commit), is configured to run before each commit.
+-   This hook runs [lint-staged](mdc:https:/github.com/okonet/lint-staged) to automatically fix linting issues in staged files, as configured in [`.lintstagedrc.mjs`](mdc:.lintstagedrc.mjs).
+-   After linting, it ensures the project builds and passes all tests before allowing the commit to proceed.
