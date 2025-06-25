@@ -6,7 +6,9 @@ This monorepo includes a set of tools for building an encrypted message-passing 
 
 - `@eropple/key-sealed-envelope` [![NPM version](https://img.shields.io/npm/v/@eropple/key-sealed-envelope)](https://www.npmjs.com/package/@eropple/key-sealed-envelope) implements secure message sealing with multiple recipients using either RSA or EC asymmetric keys. (It's not strictly Temporal-specific, so it may be reusable for other purposes.)
 - `@eropple/temporal-payload-codec` [![NPM version](https://img.shields.io/npm/v/@eropple/temporal-payload-codec)](https://www.npmjs.com/package/@eropple/temporal-payload-codec) implements a Payload Codec that handles the encryption and decryption of a payload based on the KSE sealer and unsealer above.
-- `@eropple/temporal-fastify-codec-server` (that's a mouthful!) implements a Fastify plugin and an example server to wrap it that uses the aforementioned data converter to enable the Temporal UI to unwrap payloads. (It's implemented as a plugin so that you can put your own authentication in front of it.)
+- `@eropple/temporal-fastify-codec-server` [![NPM version](https://img.shields.io/npm/v/@eropple/temporal-fastify-codec-server)](https://www.npmjs.com/package/@eropple/temporal-fastify-codec-server) (that's a mouthful!) implements a Fastify plugin and an example server to wrap it that uses the aforementioned data converter to enable the Temporal UI to unwrap payloads. (It's implemented as a plugin so that you can put your own authentication in front of it.)
+
+Each package has a detailed README for your perusal.
 
 ## Thanks
 
