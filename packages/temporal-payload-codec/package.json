@@ -1,0 +1,50 @@
+{
+  "name": "@eropple/temporal-payload-codec",
+  "version": "0.0.0",
+  "description": "A Temporal.io PayloadCodec using @eropple/key-sealed-envelope.",
+  "homepage": "https://github.com/eropple/temporal-tools",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eropple/temporal-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eropple/temporal-tools/issues"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist && rm -rf *.tsbuildinfo",
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "temporal",
+    "encryption",
+    "security"
+  ],
+  "author": "Ed Ropple <ed@eropple.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@eropple/key-sealed-envelope": "workspace:*",
+    "@temporalio/common": "^1.9.0",
+    "@temporalio/proto": "^1.9.0"
+  },
+  "peerDependencies": {
+    "@temporalio/client": "^1.9.0",
+    "@temporalio/worker": "^1.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "vitest": "^1.6.0"
+  },
+  "files": [
+    "dist"
+  ]
+}

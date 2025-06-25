@@ -2,8 +2,11 @@
   "name": "monorepo",
   "private": true,
   "type": "module",
+  "version": "0.2.0",
   "scripts": {
+    "clean": "pnpm -r clean",
     "build": "pnpm -r build",
+    "rebuild": "pnpm clean && pnpm build",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "prepare": "husky"

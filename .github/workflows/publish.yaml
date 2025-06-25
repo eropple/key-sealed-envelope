@@ -3,24 +3,26 @@ name: Publish
 on:
   push:
     tags:
-      - "v*"
+      - 'v*'
 
 jobs:
   build:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [22.x, 24.x]
+        node-version: [22.x]
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: install pnpm
-        run: npm install -g pnpm
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm build
@@ -30,27 +32,76 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org/
-      - name: install pnpm
-        run: npm install -g pnpm
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
 
       - name: Set VERSION variable from tag
         run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
-      - name: Print version
-        run: echo $VERSION
-      - name: Verify commit exists in origin/main
-        run: |
-          git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
-          git branch --remote --contains | grep origin/main
-      - name: Verify that the version exists in package.json
-        run: 'sudo apt-get install -y jq && [[ "$(jq -r ".version" package.json)" == "$VERSION" ]]'
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: npm publish --access=public
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y jq
+          pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Verify tag version matches root package.json
+        run: '[[ "$(jq -r ".version" package.json)" == "$VERSION" ]]'
+
+      - name: Update all package.json files with release version
+        run: |
+          for file in packages/*/package.json; do
+            jq --arg v "$VERSION" '.version = $v' "$file" > tmp.$$.json && mv tmp.$$.json "$file"
+          done
+
+      - name: Publish @eropple/key-sealed-envelope
+        run: pnpm publish --filter @eropple/key-sealed-envelope --no-git-checks
         env:
-          NODE_AUTH_TOKEN: "${{secrets.NPM_AUTH_TOKEN}}"
+          NODE_AUTH_TOKEN: '${{secrets.NPM_AUTH_TOKEN}}'
+      - name: Verify @eropple/key-sealed-envelope
+        run: |
+          mkdir -p /tmp/verify
+          cd /tmp/verify
+          pnpm add @eropple/key-sealed-envelope@$VERSION
+          cd -
+          rm -rf /tmp/verify
+
+      - name: Update dependencies for @eropple/temporal-payload-codec
+        run: |
+          jq --arg v "$VERSION" '.dependencies["@eropple/key-sealed-envelope"] = $v' packages/temporal-payload-codec/package.json > tmp.$$.json && mv tmp.$$.json packages/temporal-payload-codec/package.json
+      - name: Publish @eropple/temporal-payload-codec
+        run: pnpm publish --filter @eropple/temporal-payload-codec --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: '${{secrets.NPM_AUTH_TOKEN}}'
+      - name: Verify @eropple/temporal-payload-codec
+        run: |
+          mkdir -p /tmp/verify
+          cd /tmp/verify
+          pnpm add @eropple/temporal-payload-codec@$VERSION
+          cd -
+          rm -rf /tmp/verify
+
+      - name: Update dependencies for @eropple/temporal-fastify-codec-server
+        run: |
+          jq --arg v "$VERSION" '.devDependencies["@eropple/key-sealed-envelope"] = $v' packages/temporal-fastify-codec-server/package.json > tmp.$$.json && mv tmp.$$.json packages/temporal-fastify-codec-server/package.json
+          jq --arg v "$VERSION" '.devDependencies["@eropple/temporal-payload-codec"] = $v' packages/temporal-fastify-codec-server/package.json > tmp.$$.json && mv tmp.$$.json packages/temporal-fastify-codec-server/package.json
+      - name: Publish @eropple/temporal-fastify-codec-server
+        run: pnpm publish --filter @eropple/temporal-fastify-codec-server --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: '${{secrets.NPM_AUTH_TOKEN}}'
+      - name: Verify @eropple/temporal-fastify-codec-server
+        run: |
+          mkdir -p /tmp/verify
+          cd /tmp/verify
+          pnpm add @eropple/temporal-fastify-codec-server@$VERSION
+          cd -
+          rm -rf /tmp/verify

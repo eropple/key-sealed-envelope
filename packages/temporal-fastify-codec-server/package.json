@@ -1,0 +1,51 @@
+{
+  "name": "@eropple/temporal-fastify-codec-server",
+  "version": "0.0.0",
+  "description": "A Fastify plugin that serves a Temporal.io PayloadCodec over HTTP.",
+  "homepage": "https://github.com/eropple/temporal-tools",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eropple/temporal-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eropple/temporal-tools/issues"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist && rm -rf *.tsbuildinfo",
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "temporal",
+    "fastify",
+    "codec",
+    "security"
+  ],
+  "author": "Ed Ropple <ed@eropple.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@temporalio/common": "^1.9.0",
+    "fastify-plugin": "^5.0.1"
+  },
+  "devDependencies": {
+    "@eropple/key-sealed-envelope": "workspace:*",
+    "@eropple/temporal-payload-codec": "workspace:*",
+    "@types/node": "^20.12.12",
+    "fastify": "^5.4.0"
+  },
+  "peerDependencies": {
+    "fastify": "5.x"
+  },
+  "files": [
+    "dist"
+  ]
+}
