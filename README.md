@@ -1,5 +1,7 @@
 # @eropple/key-sealed-envelope
 
+[![NPM version](https://img.shields.io/npm/v/@eropple/key-sealed-envelope)](https://www.npmjs.com/package/@eropple/key-sealed-envelope) [![CI](https://github.com/eropple/key-sealed-envelope/actions/workflows/ci.yaml/badge.svg)](https://github.com/eropple/key-sealed-envelope/actions/workflows/ci.yaml)
+
 A TypeScript library for secure message sealing with multiple recipients. It's not a new idea, but I couldn't find a library that met my needs; I built this to act as the encrypted core of a Temporal [Data Converter](https://docs.temporal.io/dataconversion) in order to protect a given workload's data from the platform operator.
 
 The payload is encrypted with a symmetric key (the Content Encryption Key, or CEK), which is then encrypted with a set of all recipients' public keys. The envelope is canonicalized and signed.
