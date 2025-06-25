@@ -22,11 +22,9 @@ jobs:
       - name: install pnpm
         run: npm install -g pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
       - run: pnpm build
-        if: matrix.os == 'ubuntu-latest'
       - run: pnpm test
-        if: matrix.os == 'ubuntu-latest'
-      - run: npm test
 
   publish-npm:
     needs: build
