@@ -16,6 +16,10 @@
       "import": "./dist/index.js"
     }
   },
+
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist && rm -rf *.tsbuildinfo",

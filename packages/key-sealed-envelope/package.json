@@ -12,6 +12,9 @@
   "bugs": {
     "url": "https://github.com/eropple/temporal-tools/issues"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
